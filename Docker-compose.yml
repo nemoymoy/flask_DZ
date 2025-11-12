@@ -1,0 +1,44 @@
+networks:
+  backend:
+
+services:
+
+  db:
+    image: postgres:14.3-alpine3.15
+    container_name: ad_site
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5431:5432"
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+
+  pgadmin:
+    image: dpage/pgadmin4:9.8
+    ports:
+      - "5050:80"
+    container_name: pgadmin
+    depends_on:
+      - db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "ad_user@yandex.ru"
+      PGADMIN_DEFAULT_PASSWORD: "ad_password"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    volumes:
+      - ./services/pgadmin:/var/lib/pgadmin
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+
