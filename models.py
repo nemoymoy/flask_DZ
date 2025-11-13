@@ -29,8 +29,7 @@ class User(Base):
     password: MappedColumn[str] = mapped_column(String(60), nullable=False)
     email: MappedColumn[str] = mapped_column(String(50), nullable=False, index=True)
     creation_time: MappedColumn[datetime.datetime] = mapped_column(DateTime, server_default=func.now())
-    # ad: Mapped[list["Ad"]] = relationship('Ad', back_populates='author')
-
+    ad: Mapped[list["Ad"]] = relationship("Ad", back_populates="author", cascade="all, delete")
 
     @property
     def id_json(self):
@@ -41,7 +40,6 @@ class User(Base):
         return {
             'id': self.id,
             'username': self.username,
-            'password': self.password,
             'creation_time': self.creation_time.isoformat()
         }
 
@@ -52,8 +50,8 @@ class Ad(Base):
     header: MappedColumn[str] = mapped_column(String(100), nullable=False, index=True)
     description: MappedColumn[str] = mapped_column(String(500))
     creation_time: MappedColumn[datetime.datetime] = mapped_column(DateTime, server_default=func.now())
-    user_id: MappedColumn[int] = mapped_column(Integer, nullable=False)
-    # author: Mapped['User'] = relationship('User', foreign_keys=[user_id], back_populates='ad')
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("ad_users.id"), nullable=False)
+    author: Mapped[User] = relationship("User", back_populates="ad")
 
     @property
     def id_json(self):
@@ -68,6 +66,6 @@ class Ad(Base):
             'creation_time': self.creation_time.isoformat(),
             'user_id': self.user_id
         }
-
+Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
 atexit.register(engine.dispose)

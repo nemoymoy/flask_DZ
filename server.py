@@ -67,7 +67,7 @@ class UserView(MethodView):
         if 'username' in json_data:
             user.username = json_data['username']
         if 'password' in json_data:
-            user.username = hash_password(json_data['password'])
+            user.password = hash_password(json_data['password'])
         add_user(user)
         return jsonify(user.id_json)
 
